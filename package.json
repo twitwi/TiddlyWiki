@@ -10,6 +10,9 @@
       "email": "jeremy@jermolene.com"
     }
   ],
+  "scripts": {
+    "start": "node tiddlywiki.js --server 9251"
+  },
   "bin": {
     "tiddlywiki": "./tiddlywiki.js"
   },
