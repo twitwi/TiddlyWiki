@@ -15,7 +15,7 @@ console.log(items.length);
 if(items.length > 0) {
   process.chdir(path);
   process.argv.push('--server');
-  process.argv.push(process.env.PORT);
+  process.argv.push(process.env.PORT || 9444);
   process.argv.push(path);
   $tw.boot.argv = Array.prototype.slice.call(process.argv,2);
   $tw.boot.boot();
