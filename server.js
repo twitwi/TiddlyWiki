@@ -10,7 +10,7 @@ var $tw = require("./boot/boot.js").TiddlyWiki();
 var path = '/usr/local/var/cozy/tiddlywiki5/';
 var items = fs.readdirSync(path);
 
-var port = process.env.PORT || 9444;
+var port = process.env.PORT || "9444";
 console.log(port);
 console.log(process.env);
 
