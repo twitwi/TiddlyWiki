@@ -14,19 +14,28 @@ console.log(items.length);
 
 if(items.length > 0) {
   process.chdir(path);
-  process.argv.push(path);
   process.argv.push('--server');
   process.argv.push(process.env.PORT);
   process.argv.push(path);
+  $tw.boot.argv = Array.prototype.slice.call(process.argv,2);
+  $tw.boot.boot();
 } else {
   process.argv.push(path);
   process.argv.push('--init');
   process.argv.push('server');
+
+  $tw.boot.argv = Array.prototype.slice.call(process.argv,2);
+  $tw.boot.boot();
+
+  process.argv.pop();
+  process.argv.pop();
+  process.argv.pop();
+
+  process.chdir(path);
+  process.argv.push('--server');
+  process.argv.push(process.env.PORT);
+  process.argv.push(path);
+  $tw.boot.argv = Array.prototype.slice.call(process.argv,2);
+  $tw.boot.boot();
 };
 
-// Pass the command line arguments to the boot kernel
-$tw.boot.argv = Array.prototype.slice.call(process.argv,2);
-
-
-// Boot the TW5 app
-$tw.boot.boot();
