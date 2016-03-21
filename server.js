@@ -7,13 +7,19 @@ This is invoked as a shell script by NPM when the `tiddlywiki` command is typed
 
 var $tw = require("./boot/boot.js").TiddlyWiki();
 
-var path = '/usr/local/var/cozy/tiddlywiki5';
+var path = '/usr/local/var/cozy/tiddlywiki5/';
 var items = fs.readdirSync(path);
 
+console.log(items.length);
+
 if(items.length > 0) {
+  process.chdir(path);
+  process.argv.push(path);
   process.argv.push('--server');
   process.argv.push(process.env.PORT);
+  process.argv.push(path);
 } else {
+  process.argv.push(path);
   process.argv.push('--init');
   process.argv.push('server');
 };
