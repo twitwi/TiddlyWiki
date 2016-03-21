@@ -7,7 +7,7 @@ This is invoked as a shell script by NPM when the `tiddlywiki` command is typed
 
 var $tw = require("./boot/boot.js").TiddlyWiki();
 
-var path = '/usr/local/var/cozy/tiddlywiki';
+var path = '/usr/local/var/cozy/tiddlywiki5';
 var items = fs.readdirSync(path);
 
 if(items.length > 0) {
