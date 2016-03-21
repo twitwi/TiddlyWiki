@@ -126,8 +126,8 @@ Display an error and exit
 */
 $tw.utils.error = function(err) {
 	// Prepare the error message
-	var errHeading = "Internal JavaScript Error",
-		promptMsg = "Well, this is embarrassing. It is recommended that you restart TiddlyWiki by refreshing your browser";
+	var errHeading = ( $tw.language == undefined ? "Internal JavaScript Error" : $tw.language.getString("InternalJavaScriptError/Title") ),
+		promptMsg = ( $tw.language == undefined ? "Well, this is embarrassing. It is recommended that you restart TiddlyWiki by refreshing your browser" : $tw.language.getString("InternalJavaScriptError/Hint") );
 	// Log the error to the console
 	console.error($tw.node ? "\x1b[1;31m" + err + "\x1b[0m" : err);
 	if($tw.browser && !$tw.node) {
@@ -590,7 +590,7 @@ Crypto helper object for encrypted content. It maintains the password text in a 
 the password, and to encrypt/decrypt a block of text
 */
 $tw.utils.Crypto = function() {
-	var sjcl = $tw.node ? require("./sjcl.js") : window.sjcl,
+	var sjcl = $tw.node ? (global.sjcl || require("./sjcl.js")) : window.sjcl,
 		currentPassword = null,
 		callSjcl = function(method,inputText,password) {
 			password = password || currentPassword;
@@ -812,6 +812,7 @@ $tw.Tiddler = function(/* [fields,] fields */) {
 	}
 	// Freeze the tiddler against modification
 	Object.freeze(this.fields);
+	Object.freeze(this);
 };
 
 $tw.Tiddler.prototype.hasField = function(field) {
@@ -885,10 +886,12 @@ $tw.Wiki = function(options) {
 	this.deleteTiddler = function(title) {
 // Uncomment the following line for detailed logs of all tiddler deletions
 // console.log("Deleting",title,tiddler)
-		delete tiddlers[title];
-		this.clearCache(title);
-		this.clearGlobalCache();
-		this.enqueueTiddlerEvent(title,true);
+		if($tw.utils.hop(tiddlers,title)) {
+			delete tiddlers[title];
+			this.clearCache(title);
+			this.clearGlobalCache();
+			this.enqueueTiddlerEvent(title,true);
+		}
 	};
 
 	// Get a tiddler from the store
@@ -1083,6 +1086,8 @@ $tw.Wiki = function(options) {
 				});
 			}
 		});
+		this.clearCache(null);
+		this.clearGlobalCache();
 	};
 
 };
@@ -1395,10 +1400,6 @@ $tw.loadTiddlersBrowser = function() {
 	for(var t=0; t<containerIds.length; t++) {
 		$tw.wiki.addTiddlers($tw.wiki.deserializeTiddlers("(DOM)",document.getElementById(containerIds[t])));
 	}
-	// Load any preloaded tiddlers
-	if($tw.preloadTiddlers) {
-		$tw.wiki.addTiddlers($tw.preloadTiddlers);
-	}
 };
 
 } else {
@@ -1461,22 +1462,41 @@ $tw.loadTiddlersFromPath = function(filepath,excludeRegExp) {
 			if(files.indexOf("tiddlywiki.files") !== -1) {
 				// If so, process the files it describes
 				var filesInfo = JSON.parse(fs.readFileSync(filepath + path.sep + "tiddlywiki.files","utf8"));
+				// First the tiddlers
 				$tw.utils.each(filesInfo.tiddlers,function(tidInfo) {
 					var type = tidInfo.fields.type || "text/plain",
 						typeInfo = $tw.config.contentTypeInfo[type],
 						pathname = path.resolve(filepath,tidInfo.file),
-						text = fs.readFileSync(pathname,typeInfo ? typeInfo.encoding : "utf8"),
-						fileTiddlers = $tw.wiki.deserializeTiddlers(path.extname(pathname),text) || [];
-					$tw.utils.each(fileTiddlers,function(tiddler) {
-						$tw.utils.extend(tiddler,tidInfo.fields);
+						text = fs.readFileSync(pathname,typeInfo ? typeInfo.encoding : "utf8");
+					if(tidInfo.isTiddlerFile) {
+						var fileTiddlers = $tw.wiki.deserializeTiddlers(path.extname(pathname),text) || [];
+						$tw.utils.each(fileTiddlers,function(tiddler) {
+							$tw.utils.extend(tiddler,tidInfo.fields);
+							if(tidInfo.prefix) {
+								tiddler.text = tidInfo.prefix + tiddler.text;
+							}
+							if(tidInfo.suffix) {
+								tiddler.text = tiddler.text + tidInfo.suffix;
+							}
+						});
+						tiddlers.push({tiddlers: fileTiddlers});
+					} else {
 						if(tidInfo.prefix) {
-							tiddler.text = tidInfo.prefix + tiddler.text;
+							text = tidInfo.prefix + text;
 						}
 						if(tidInfo.suffix) {
-							tiddler.text = tiddler.text + tidInfo.suffix;
+							text = text + tidInfo.suffix;
 						}
-					});
-					tiddlers.push({tiddlers: fileTiddlers});
+						tidInfo.fields.text = text;
+						tiddlers.push({tiddlers: [tidInfo.fields]});
+					}
+				});
+				// Then any recursive directories
+				$tw.utils.each(filesInfo.directories,function(dirPath) {
+					var pathname = path.resolve(filepath,dirPath);
+					if(fs.existsSync(pathname) && fs.statSync(pathname).isDirectory()) {
+						tiddlers.push.apply(tiddlers,$tw.loadTiddlersFromPath(pathname,excludeRegExp));
+					}
 				});
 			} else {
 				// If not, read all the files in the directory
@@ -1785,7 +1805,7 @@ $tw.boot.startup = function(options) {
 			$tw.boot.wikiPath = process.cwd();
 		}
 		// Read package info
-		$tw.packageInfo = require("../package.json");
+		$tw.packageInfo = $tw.packageInfo || require("../package.json");
 		// Check node version number
 		if(!$tw.utils.checkVersions(process.version.substr(1),$tw.packageInfo.engines.node.substr(2))) {
 			$tw.utils.error("TiddlyWiki5 requires node.js version " + $tw.packageInfo.engines.node);
@@ -1812,9 +1832,11 @@ $tw.boot.startup = function(options) {
 	$tw.utils.registerFileType("image/x-icon","base64",".ico",{flags:["image"]});
 	$tw.utils.registerFileType("application/font-woff","base64",".woff");
 	$tw.utils.registerFileType("audio/ogg","base64",".ogg");
+	$tw.utils.registerFileType("video/mp4","base64",".mp4");
 	$tw.utils.registerFileType("audio/mp3","base64",".mp3");
 	$tw.utils.registerFileType("audio/mp4","base64",[".mp4",".m4a"]);
 	$tw.utils.registerFileType("text/x-markdown","utf8",[".md",".markdown"]);
+	$tw.utils.registerFileType("application/enex+xml","utf8",".enex");	
 	// Create the wiki store for the app
 	$tw.wiki = new $tw.Wiki();
 	// Install built in tiddler fields modules
@@ -1841,6 +1863,10 @@ $tw.boot.startup = function(options) {
 		$tw.loadTiddlersBrowser();
 	} else {
 		$tw.loadTiddlersNode();
+	}
+	// Load any preloaded tiddlers
+	if($tw.preloadTiddlers) {
+		$tw.wiki.addTiddlers($tw.preloadTiddlers);
 	}
 	// Unpack plugin tiddlers
 	$tw.wiki.readPluginInfo();

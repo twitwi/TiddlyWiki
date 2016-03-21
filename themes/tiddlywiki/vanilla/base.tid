@@ -434,6 +434,66 @@ button svg.tc-image-button, button .tc-image-button img {
 	width: 1em;
 }
 
+.tc-unfold-banner {
+	position: absolute;
+	padding: 0;
+	margin: 0;
+	background: none;
+	border: none;
+	width: 100%;
+    width: calc(100% + 2px);
+    margin-left: -43px;
+	text-align: center;
+	border-top: 2px solid <<colour tiddler-info-background>>;
+	margin-top: 4px;
+}
+
+.tc-unfold-banner:hover {
+	background: <<colour tiddler-info-background>>;
+	border-top: 2px solid <<colour tiddler-info-border>>;
+}
+
+.tc-unfold-banner svg, .tc-fold-banner svg {
+	height: 0.75em;
+	fill: <<colour tiddler-controls-foreground>>;
+}
+
+.tc-unfold-banner:hover svg, .tc-fold-banner:hover svg {
+	fill: <<colour tiddler-controls-foreground-hover>>;
+}
+
+.tc-fold-banner {
+	position: absolute;
+	padding: 0;
+	margin: 0;
+	background: none;
+	border: none;
+	width: 23px;
+	text-align: center;
+	margin-left: -35px;
+    top: 6px;
+    bottom: 6px;
+}
+
+.tc-fold-banner:hover {
+	background: <<colour tiddler-info-background>>;
+}
+
+@media (max-width: {{$:/themes/tiddlywiki/vanilla/metrics/sidebarbreakpoint}}) {
+	
+	.tc-unfold-banner {
+		position: static;
+	    width: calc(100% + 59px);
+    }
+
+	.tc-fold-banner {
+		width: 16px;
+		margin-left: -16px;
+	    font-size: 0.75em;
+	}
+
+}
+
 /*
 ** Tags and missing tiddlers
 */
@@ -557,10 +617,6 @@ button.tc-untagged-label {
 	vertical-align: middle;
 }
 
-.tc-search-results {
-	padding-top: 14px;
-}
-
 .tc-page-controls {
 	margin-top: 14px;
 	font-size: 1.5em;
@@ -578,13 +634,11 @@ button.tc-untagged-label {
 	width: 1em;
 }
 
-.tc-page-controls svg,
-.tc-search svg {
+.tc-page-controls svg {
 	fill: <<colour sidebar-controls-foreground>>;
 }
 
-.tc-page-controls button:hover svg, .tc-page-controls a:hover svg,
-.tc-search button:hover svg, .tc-search a:hover svg {
+.tc-page-controls button:hover svg, .tc-page-controls a:hover svg {
 	fill: <<colour sidebar-controls-foreground-hover>>;
 }
 
@@ -682,6 +736,7 @@ button.tc-untagged-label {
 */
 
 .tc-tiddler-frame {
+	position: relative;
 	margin-bottom: 28px;
 	background-color: <<colour tiddler-background>>;
 	border: 1px solid <<colour tiddler-border>>;
@@ -808,7 +863,8 @@ button.tc-untagged-label {
 	margin-left:5px;
 }
 
-.tc-tiddler-controls button svg, .tc-tiddler-controls button img {
+.tc-tiddler-controls button svg, .tc-tiddler-controls button img,
+.tc-search button svg, .tc-search a svg {
 	height: 0.75em;
 	fill: <<colour tiddler-controls-foreground>>;
 }
@@ -818,7 +874,8 @@ button.tc-untagged-label {
 	fill: <<colour tiddler-controls-foreground-selected>>;
 }
 
-.tc-tiddler-controls button.tc-btn-invisible:hover svg {
+.tc-tiddler-controls button.tc-btn-invisible:hover svg,
+.tc-search button:hover svg, .tc-search a:hover svg {
 	fill: <<colour tiddler-controls-foreground-hover>>;
 }
 
@@ -877,6 +934,10 @@ canvas.tc-edit-bitmapeditor  {
 	display: block;
 }
 
+.tc-tiddler-body {
+	clear: both;
+}
+
 .tc-tiddler-frame .tc-tiddler-body {
 	font-size: {{$:/themes/tiddlywiki/vanilla/metrics/bodyfontsize}};
 	line-height: {{$:/themes/tiddlywiki/vanilla/metrics/bodylineheight}};
@@ -912,6 +973,7 @@ html body.tc-body.tc-single-tiddler-window {
 		position: relative;
 		width: auto;
 		left: 0;
+		margin-left: {{$:/themes/tiddlywiki/vanilla/metrics/storyleft}};
 		margin-right: {{$:/themes/tiddlywiki/vanilla/metrics/sidebarwidth}};
 	}
 
@@ -1236,11 +1298,26 @@ html body.tc-body.tc-single-tiddler-window {
 	margin: 4px 0 0 0;
 	white-space: nowrap;
 	z-index: 1000;
+	text-shadow: none;
+}
+
+.tc-block-dropdown.tc-search-drop-down {
+	margin-left: -12px;
 }
 
 .tc-block-dropdown a {
 	display: block;
 	padding: 4px 14px 4px 14px;
+}
+
+.tc-block-dropdown.tc-search-drop-down a {
+	display: block;
+	padding: 0px 10px 0px 10px;
+}
+
+.tc-drop-down .tc-dropdown-item-plain,
+.tc-block-dropdown .tc-dropdown-item-plain {
+	padding: 4px 14px 4px 7px;
 }
 
 .tc-drop-down .tc-dropdown-item,
@@ -1253,6 +1330,10 @@ html body.tc-body.tc-single-tiddler-window {
 	color: <<colour tiddler-link-background>>;
 	background-color: <<colour tiddler-link-foreground>>;
 	text-decoration: none;
+}
+
+.tc-search-results {
+    padding: 0 7px 0 7px;
 }
 
 /*
@@ -1396,6 +1477,7 @@ html body.tc-body.tc-single-tiddler-window {
 .tc-tab-buttons button {
 	color: <<colour tab-foreground>>;
 	padding: 3px 5px 3px 5px;
+	margin-right: 0.3em;
 	font-weight: 300;
 	border: none;
 	background: inherit;
@@ -1411,6 +1493,7 @@ html body.tc-body.tc-single-tiddler-window {
 	display: block;
 	width: 100%;
 	margin-top: 3px;
+	margin-right: 0;
 	text-align: right;
 	background-color: <<colour tab-background>>;
 	border-left: 1px solid <<colour tab-border>>;
@@ -1472,6 +1555,8 @@ html body.tc-body.tc-single-tiddler-window {
 }
 
 .tc-more-sidebar .tc-tab-buttons button {
+	display: block;
+	width: 100%;
 	background-color: <<colour sidebar-tab-background>>;
 	border-top: none;
 	border-left: none;
@@ -1579,7 +1664,7 @@ a.tc-tiddlylink.tc-plugin-info:hover {
 	fill: <<colour foreground>>;
 }
 
-a.tc-tiddlylink.tc-plugin-info:hover svg {
+a.tc-tiddlylink.tc-plugin-info:hover .tc-plugin-info > .tc-plugin-info-chunk > svg {
 	fill: <<colour foreground>>;
 }
 
@@ -1603,13 +1688,19 @@ a.tc-tiddlylink.tc-plugin-info:hover svg {
 	margin: 2px 0 2px 0;
 }
 
-.tc-plugin-info img, .tc-plugin-info svg {
+.tc-plugin-info:hover > .tc-plugin-info-chunk > img, .tc-plugin-info:hover > .tc-plugin-info-chunk > svg {
+	width: 2em;
+	height: 2em;
+	fill: <<colour foreground>>;
+}
+
+.tc-plugin-info > .tc-plugin-info-chunk > img, .tc-plugin-info > .tc-plugin-info-chunk > svg {
 	width: 2em;
 	height: 2em;
 	fill: <<colour muted-foreground>>;
 }
 
-.tc-plugin-info.tc-small-icon img, .tc-plugin-info.tc-small-icon svg {
+.tc-plugin-info.tc-small-icon > .tc-plugin-info-chunk > img, .tc-plugin-info.tc-small-icon > .tc-plugin-info-chunk > svg {
 	width: 1em;
 	height: 1em;
 }

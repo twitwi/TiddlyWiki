@@ -58,17 +58,24 @@ exports.setTextReference = function(textRef,value,currTiddlerTitle) {
 	this.setText(title,tr.field,tr.index,value);
 };
 
-exports.setText = function(title,field,index,value) {
+exports.setText = function(title,field,index,value,options) {
+	options = options || {};
+	var creationFields = options.suppressTimestamp ? {} : this.getCreationFields(),
+		modificationFields = options.suppressTimestamp ? {} : this.getModificationFields();
 	// Check if it is a reference to a tiddler field
 	if(index) {
 		var data = this.getTiddlerData(title,Object.create(null));
-		data[index] = value;
-		this.setTiddlerData(title,data,this.getModificationFields());
+		if(value !== undefined) {
+			data[index] = value;
+		} else {
+			delete data[index];
+		}
+		this.setTiddlerData(title,data,modificationFields);
 	} else {
 		var tiddler = this.getTiddler(title),
 			fields = {title: title};
 		fields[field || "text"] = value;
-		this.addTiddler(new $tw.Tiddler(tiddler,fields,this.getModificationFields()));
+		this.addTiddler(new $tw.Tiddler(creationFields,tiddler,fields,modificationFields));
 	}
 };
 
@@ -186,11 +193,11 @@ exports.generateNewTitle = function(baseTitle,options) {
 };
 
 exports.isSystemTiddler = function(title) {
-	return title.indexOf("$:/") === 0;
+	return title && title.indexOf("$:/") === 0;
 };
 
 exports.isTemporaryTiddler = function(title) {
-	return title.indexOf("$:/temp/") === 0;
+	return title && title.indexOf("$:/temp/") === 0;
 };
 
 exports.isImageTiddler = function(title) {
@@ -742,11 +749,15 @@ exports.getCacheForTiddler = function(title,cacheName,initializer) {
 	}
 };
 
-// Clear all caches associated with a particular tiddler
+// Clear all caches associated with a particular tiddler, or, if the title is null, clear all the caches for all the tiddlers
 exports.clearCache = function(title) {
-	this.caches = this.caches || Object.create(null);
-	if($tw.utils.hop(this.caches,title)) {
-		delete this.caches[title];
+	if(title) {
+		this.caches = this.caches || Object.create(null);
+		if($tw.utils.hop(this.caches,title)) {
+			delete this.caches[title];
+		}
+	} else {
+		this.caches = Object.create(null);
 	}
 };
 
@@ -1153,7 +1164,9 @@ exports.findDraft = function(targetTitle) {
 }
 
 /*
-Check whether the specified draft tiddler has been modified
+Check whether the specified draft tiddler has been modified.
+If the original tiddler doesn't exist, create  a vanilla tiddler variable,
+to check if additional fields have been added.
 */
 exports.isDraftModified = function(title) {
 	var tiddler = this.getTiddler(title);
@@ -1161,11 +1174,9 @@ exports.isDraftModified = function(title) {
 		return false;
 	}
 	var ignoredFields = ["created", "modified", "title", "draft.title", "draft.of"],
-		origTiddler = this.getTiddler(tiddler.fields["draft.of"]);
-	if(!origTiddler) {
-		return tiddler.fields.text !== "";
-	}
-	return tiddler.fields["draft.title"] !== tiddler.fields["draft.of"] || !tiddler.isEqual(origTiddler,ignoredFields);
+		origTiddler = this.getTiddler(tiddler.fields["draft.of"]) || new $tw.Tiddler({text:"", tags:[]}),
+		titleModified = tiddler.fields["draft.title"] !== tiddler.fields["draft.of"];
+	return titleModified || !tiddler.isEqual(origTiddler,ignoredFields);
 };
 
 /*
@@ -1175,14 +1186,8 @@ fromPageRect: page coordinates of the origin of the navigation
 historyTitle: title of history tiddler (defaults to $:/HistoryList)
 */
 exports.addToHistory = function(title,fromPageRect,historyTitle) {
-	historyTitle = historyTitle || "$:/HistoryList";
-	var titles = $tw.utils.isArray(title) ? title : [title];
-	// Add a new record to the top of the history stack
-	var historyList = this.getTiddlerData(historyTitle,[]);
-	$tw.utils.each(titles,function(title) {
-		historyList.push({title: title, fromPageRect: fromPageRect});
-	});
-	this.setTiddlerData(historyTitle,historyList,{"current-tiddler": titles[titles.length-1]});
+	var story = new $tw.Story({wiki: this, historyTitle: historyTitle});
+	story.addToHistory(title,fromPageRect);
 };
 
 /*

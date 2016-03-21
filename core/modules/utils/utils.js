@@ -35,9 +35,7 @@ exports.trim = function(str) {
 Return the number of keys in an object
 */
 exports.count = function(object) {
-	var s = 0;
-	$tw.utils.each(object,function() {s++;});
-	return s;
+	return Object.keys(object || {}).length;
 };
 
 /*
@@ -385,17 +383,18 @@ exports.htmlEncode = function(s) {
 
 // Converts all HTML entities to their character equivalents
 exports.entityDecode = function(s) {
-	var e = s.substr(1,s.length-2); // Strip the & and the ;
+	var converter = String.fromCodePoint || String.fromCharCode,
+		e = s.substr(1,s.length-2); // Strip the & and the ;
 	if(e.charAt(0) === "#") {
 		if(e.charAt(1) === "x" || e.charAt(1) === "X") {
-			return String.fromCharCode(parseInt(e.substr(2),16));	
+			return converter(parseInt(e.substr(2),16));	
 		} else {
-			return String.fromCharCode(parseInt(e.substr(1),10));
+			return converter(parseInt(e.substr(1),10));
 		}
 	} else {
 		var c = $tw.config.htmlEntities[e];
 		if(c) {
-			return String.fromCharCode(c);
+			return converter(c);
 		} else {
 			return s; // Couldn't convert it as an entity, just return it raw
 		}
@@ -631,6 +630,29 @@ exports.makeDataUri = function(text,type) {
 	parts.push(",");
 	parts.push(isBase64 ? text : encodeURIComponent(text));
 	return parts.join("");
+};
+
+/*
+Useful for finding out the fully escaped CSS selector equivalent to a given tag. For example:
+
+$tw.utils.tagToCssSelector("$:/tags/Stylesheet") --> tc-tagged-\%24\%3A\%2Ftags\%2FStylesheet
+*/
+exports.tagToCssSelector = function(tagName) {
+	return "tc-tagged-" + encodeURIComponent(tagName).replace(/[!"#$%&'()*+,\-./:;<=>?@[\\\]^`{\|}~,]/mg,function(c) {
+		return "\\" + c;
+	});
+};
+
+
+/*
+IE does not have sign function
+*/
+exports.sign = Math.sign || function(x) {
+	x = +x; // convert to a number
+	if (x === 0 || isNaN(x)) {
+		return x;
+	}
+	return x > 0 ? 1 : -1;
 };
 
 })();
