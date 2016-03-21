@@ -11,12 +11,12 @@
     }
   ],
   "scripts": {
-    "start": "node tiddlywiki.js --server 9251"
+    "start": "node server.js"
   },
   "bin": {
-    "tiddlywiki": "./tiddlywiki.js"
+    "tiddlywiki": "./server.js"
   },
-  "main": "./boot/boot.js",
+  "main": "./server.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/Jermolene/TiddlyWiki5.git"
