@@ -26,7 +26,11 @@
     "tiddlywiki5",
     "wiki"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "copy": "^0.2.0",
+    "cp-r": "^0.1.2",
+    "cpr": "^1.0.0"
+  },
   "devDependencies": {},
   "bundleDependencies": [],
   "license": "MIT",
