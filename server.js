@@ -42,7 +42,7 @@ function startServer() {
     '', // username, nothing, auth is handled by Cozy
     '', // password, nothing auth is handled by Cozy
     '127.0.0.1', // host
-    "/apps/tiddlywiki5"
+    ""
   ]);
   var url = "http://127.0.0.1:" + port + "/apps/tiddlywiki5/";
   console.log(url);
