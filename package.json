@@ -27,12 +27,16 @@
     "wiki"
   ],
   "dependencies": {
-    "copy": "^0.2.0",
-    "cp-r": "^0.1.2",
-    "cpr": "^1.0.0"
+    "cozydb": "^0.1.10",
+    "cpr": "1.0.0"
   },
   "devDependencies": {},
   "bundleDependencies": [],
+  "cozy-permissions": {
+    "CozyInstance": {
+      "description": "Used to recover your language setting and your cozy's domain"
+    }
+  },
   "license": "MIT",
   "engines": {
     "node": ">=0.8.2"

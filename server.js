@@ -21,6 +21,7 @@ function init(callback) {
   };
   copy('./editions/server', dirPath, opts, function (err) {
     if (err) return callback(err);
+    else callback();
   });
 }
 
@@ -44,14 +45,16 @@ function startServer() {
     '127.0.0.1', // host
     ""
   ]);
-  var url = "http://127.0.0.1:" + port + "/apps/tiddlywiki5/";
   console.log(url);
-  $tw.boot.argv = Array.prototype.slice.call(process.argv, 2);
-  $tw.boot.boot();
-  $tw.wiki.addTiddler(new $tw.Tiddler({
-    title: "$:/config/tiddlyweb/host",
-    text: url
-  }));
+  cozydb.api.getCozyDomain(function (err, domain) {
+    $tw.boot.argv = Array.prototype.slice.call(process.argv, 2);
+    var url = "https://" + domain + "/apps/tiddlywiki5/";
+    $tw.boot.boot();
+    $tw.wiki.addTiddler(new $tw.Tiddler({
+      title: "$:/config/tiddlyweb/host",
+      text: url
+    }));
+  });
 }
 
 if (isInfoFile) {
