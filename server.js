@@ -48,7 +48,7 @@ function startServer() {
   ]);
   cozydb.api.getCozyDomain(function (err, domain) {
     $tw.boot.argv = Array.prototype.slice.call(process.argv, 2);
-    var url = "https://" + domain + "/apps/tiddlywiki5/";
+    var url = domain + "apps/tiddlywiki5/";
     $tw.boot.boot();
     $tw.wiki.addTiddler(new $tw.Tiddler({
       title: "$:/config/tiddlyweb/host",
