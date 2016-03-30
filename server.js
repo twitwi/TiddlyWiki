@@ -2,6 +2,7 @@
 var fs = require('fs');
 var path = require('path');
 var copy = require('cpr');
+var cozydb = require('cozydb');
 
 /*
 This is invoked as a shell script by NPM when the `tiddlywiki` command is typed
