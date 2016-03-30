@@ -10,7 +10,7 @@ This is invoked as a shell script by NPM when the `tiddlywiki` command is typed
 
 var $tw = require("./boot/boot.js").TiddlyWiki();
 
-var dirPath = path.join('/', 'usr', 'local', 'var', 'cozy', 'tiddlywiki5');
+var dirPath = path.join('/', 'usr', 'local', 'var', 'cozy', 'wiki');
 var isInfoFile = fs.existsSync(path.join(dirPath, 'tiddlywiki.info'));
 var port = process.env.PORT || "9444";
 
@@ -48,7 +48,7 @@ function startServer() {
   ]);
   cozydb.api.getCozyDomain(function (err, domain) {
     $tw.boot.argv = Array.prototype.slice.call(process.argv, 2);
-    var url = domain + "apps/tiddlywiki5/";
+    var url = domain + "apps/wiki/";
     $tw.boot.boot();
     $tw.wiki.addTiddler(new $tw.Tiddler({
       title: "$:/config/tiddlyweb/host",
