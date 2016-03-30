@@ -41,13 +41,16 @@ function startServer() {
     'text/html', // servertype
     '', // username, nothing, auth is handled by Cozy
     '', // password, nothing auth is handled by Cozy
-    '127.0.0.1' // host
+    '127.0.0.1', // host
+    "/apps/tiddlywiki5"
   ]);
+  var url = "http://127.0.0.1:" + port + "/apps/tiddlywiki5/";
+  console.log(url);
   $tw.boot.argv = Array.prototype.slice.call(process.argv, 2);
   $tw.boot.boot();
   $tw.wiki.addTiddler(new $tw.Tiddler({
     title: "$:/config/tiddlyweb/host",
-    text: "http://127.0.0.1/apps/tiddlywiki5/"
+    text: url
   }));
 }
 
