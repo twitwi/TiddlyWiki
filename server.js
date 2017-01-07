@@ -60,11 +60,10 @@ function startServer() {
   });
 }
 
-/*
 if (isInfoFile) {
   console.log('Info file exists');
   startServer();
-} else*/ {
+} else {
   console.log('GO1');
   console.log('Info file does not exist. Init is required.');
   init(function (err) {
