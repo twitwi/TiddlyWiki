@@ -16,12 +16,14 @@ var port = process.env.PORT || "9444";
 
 
 function init(callback) {
+    console.log('GO2');
   var opts = {
     overwrite: true,
-    deleteFirst: true,
     confirm: true
   };
+    console.log('GO3');
   copy('./editions/server', dirPath, opts, function (err) {
+  console.log('GO4');
     if (err) return callback(err);
     else callback();
   });
@@ -63,6 +65,7 @@ if (isInfoFile) {
   console.log('Info file exists');
   startServer();
 } else*/ {
+  console.log('GO1');
   console.log('Info file does not exist. Init is required.');
   init(function (err) {
     if (err) {
