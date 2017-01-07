@@ -18,6 +18,7 @@ var port = process.env.PORT || "9444";
 function init(callback) {
   var opts = {
     overwrite: true,
+    deleteFirst: true,
     confirm: true
   };
   copy('./editions/server', dirPath, opts, function (err) {
