@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 var fs = require('fs');
 var path = require('path');
-var copy = require('cpr');
+var copy = require('cpr').cpr;
 var cozydb = require('cozydb');
 
 /*
