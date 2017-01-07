@@ -14,7 +14,7 @@
     "start": "node server.js"
   },
   "bin": {
-    "tiddlywiki": "./server.js"
+    "tiddlywooki": "./server.js"
   },
   "main": "./server.js",
   "repository": {
