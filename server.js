@@ -21,12 +21,13 @@ function init(callback) {
     overwrite: true,
     confirm: true
   };
-    console.log('GO3');
+    console.log('GO3.1');
   copy('./editions/server', dirPath, opts, function (err) {
   console.log('GO4');
     if (err) return callback(err);
     else callback();
   });
+    console.log('GO3.2');
 }
 
 
